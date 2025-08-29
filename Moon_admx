@@ -1,4 +1,4 @@
--- 🐾 Adopt Me Fake Pet Spawner GUI (client-side)
+-- 🐾 Adopt Me Fake Pet & Toy Spawner GUI (client-side)
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -12,39 +12,47 @@ screenGui.Name = "FakePetSpawner"
 screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 320, 0, 330)
-mainFrame.Position = UDim2.new(0.5, -160, 0.4, -165)
+mainFrame.Size = UDim2.new(0, 340, 0, 360)
+mainFrame.Position = UDim2.new(0.5, -170, 0.4, -180)
 mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
 
 local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0, 10)
+uiCorner.CornerRadius = UDim.new(0, 12)
 uiCorner.Parent = mainFrame
 
 local uiStroke = Instance.new("UIStroke")
-uiStroke.Color = Color3.fromRGB(170, 0, 255)
-uiStroke.Thickness = 3
+uiStroke.Color = Color3.fromRGB(255, 0, 200)
+uiStroke.Thickness = 2
+uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 uiStroke.Parent = mainFrame
 
--- Title (used as drag handle)
+-- Animate RGB border
+task.spawn(function()
+    while task.wait(0.1) do
+        local hue = tick() % 5 / 5
+        uiStroke.Color = Color3.fromHSV(hue, 1, 1)
+    end
+end)
+
+-- Title
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0, 30)
 titleLabel.Position = UDim2.new(0,0,0,0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text ="💸Moon&Mac Pet Spawner"
+titleLabel.Text ="💸 Moon Pet Spawner (Beta Version)"
 titleLabel.Font = Enum.Font.FredokaOne
 titleLabel.TextSize = 20
 titleLabel.TextColor3 = Color3.fromRGB(240, 240, 255)
 titleLabel.Parent = mainFrame
-titleLabel.TextStrokeTransparency = 0.8
 
 -- Signature
 local signatureLabel = Instance.new("TextLabel")
 signatureLabel.Size = UDim2.new(1, 0, 0, 20)
 signatureLabel.Position = UDim2.new(0, 0, 0, 30)
 signatureLabel.BackgroundTransparency = 1
-signatureLabel.Text = "@Moon_admx"
+signatureLabel.Text = " dc @c4rlet "
 signatureLabel.Font = Enum.Font.FredokaOne
 signatureLabel.TextSize = 14
 signatureLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
@@ -53,40 +61,42 @@ signatureLabel.Parent = mainFrame
 -- Tabs container
 local tabFrame = Instance.new("Frame")
 tabFrame.Size = UDim2.new(1, 0, 0, 30)
-tabFrame.Position = UDim2.new(0, 0, 0, 50)
+tabFrame.Position = UDim2.new(0, 0, 0, 55)
 tabFrame.BackgroundTransparency = 1
 tabFrame.Parent = mainFrame
 
-local petTab = Instance.new("TextButton")
-petTab.Size = UDim2.new(0.5, 0, 1, 0)
-petTab.Text = "Pets"
-petTab.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
-petTab.Font = Enum.Font.FredokaOne
-petTab.TextColor3 = Color3.new(1,1,1)
-petTab.TextSize = 16
-petTab.Parent = tabFrame
+local function createTab(name, pos)
+    local tab = Instance.new("TextButton")
+    tab.Size = UDim2.new(0.5, 0, 1, 0)
+    tab.Position = UDim2.new(pos,0,0,0)
+    tab.Text = name
+    tab.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    tab.Font = Enum.Font.FredokaOne
+    tab.TextColor3 = Color3.new(1,1,1)
+    tab.TextSize = 16
+    tab.Parent = tabFrame
 
-local toyTab = Instance.new("TextButton")
-toyTab.Size = UDim2.new(0.5, 0, 1, 0)
-toyTab.Position = UDim2.new(0.5,0,0,0)
-toyTab.Text = "Toys"
-toyTab.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-toyTab.Font = Enum.Font.FredokaOne
-toyTab.TextColor3 = Color3.new(1,1,1)
-toyTab.TextSize = 16
-toyTab.Parent = tabFrame
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, 8)
+    c.Parent = tab
+
+    return tab
+end
+
+local petTab = createTab("Pets",0)
+local toyTab = createTab("Toys",0.5)
 
 -- Tab contents
 local petContent = Instance.new("Frame")
-petContent.Size = UDim2.new(1, 0, 1, -90)
-petContent.Position = UDim2.new(0, 0, 0, 80)
+petContent.Size = UDim2.new(1, 0, 1, -95)
+petContent.Position = UDim2.new(0, 0, 0, 85)
 petContent.BackgroundTransparency = 1
 petContent.Visible = true
 petContent.Parent = mainFrame
 
 local toyContent = Instance.new("Frame")
-toyContent.Size = UDim2.new(1, 0, 1, -90)
-toyContent.Position = UDim2.new(0, 0, 0, 80)
+toyContent.Size = UDim2.new(1, 0, 1, -95)
+toyContent.Position = UDim2.new(0, 0, 0, 85)
 toyContent.BackgroundTransparency = 1
 toyContent.Visible = false
 toyContent.Parent = mainFrame
@@ -94,15 +104,11 @@ toyContent.Parent = mainFrame
 petTab.MouseButton1Click:Connect(function()
     petContent.Visible = true
     toyContent.Visible = false
-    petTab.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
-    toyTab.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
 end)
 
 toyTab.MouseButton1Click:Connect(function()
     petContent.Visible = false
     toyContent.Visible = true
-    petTab.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-    toyTab.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
 end)
 
 -- Pet name textbox
@@ -115,6 +121,7 @@ petNameBox.TextSize = 14
 petNameBox.Font = Enum.Font.FredokaOne
 petNameBox.PlaceholderText = "Enter Pet Name"
 petNameBox.Parent = petContent
+Instance.new("UICorner", petNameBox)
 
 -- Potion buttons
 local selectedPotion = "NO POTION"
@@ -129,6 +136,7 @@ for i, potion in ipairs(potionOptions) do
     btn.TextColor3 = Color3.new(1,1,1)
     btn.TextSize = 12
     btn.Parent = petContent
+    Instance.new("UICorner", btn)
 
     btn.MouseButton1Click:Connect(function()
         selectedPotion = potion
@@ -141,32 +149,56 @@ for i, potion in ipairs(potionOptions) do
     end)
 end
 
--- Spawn buttons
-local spawnBtn = Instance.new("TextButton")
-spawnBtn.Size = UDim2.new(0.6, 0, 0, 25)
-spawnBtn.Position = UDim2.new(0.2, 0, 0.35, 0)
-spawnBtn.Text = "Spawn Pet"
-spawnBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
-spawnBtn.Font = Enum.Font.FredokaOne
-spawnBtn.TextColor3 = Color3.new(1,1,1)
-spawnBtn.TextSize = 16
-spawnBtn.Parent = petContent
+-- Helper to create main action buttons with curved borders + RGB outline
+local function createMainButton(text, posY, parent)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.6, 0, 0, 28)
+    btn.Position = UDim2.new(0.2, 0, posY, 0)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+    btn.Font = Enum.Font.FredokaOne
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.TextSize = 16
+    btn.Parent = parent
 
-local highTierBtn = Instance.new("TextButton")
-highTierBtn.Size = UDim2.new(0.6, 0, 0, 25)
-highTierBtn.Position = UDim2.new(0.2, 0, 0.45, 0)
-highTierBtn.Text = "Spawn All High Tier"
-highTierBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 150)
-highTierBtn.Font = Enum.Font.FredokaOne
-highTierBtn.TextColor3 = Color3.new(1,1,1)
-highTierBtn.TextSize = 16
-highTierBtn.Parent = petContent
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, 10)
+    c.Parent = btn
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = 2
+    stroke.Parent = btn
+    task.spawn(function()
+        while task.wait(0.1) do
+            local hue = tick() % 5 / 5
+            stroke.Color = Color3.fromHSV(hue,1,1)
+        end
+    end)
+    return btn
+end
+
+local spawnBtn = createMainButton("Spawn Pet",0.35,petContent)
+local highTierBtn = createMainButton("Spawn All High Tier",0.50,petContent)
+
+-- Toy spawner UI
+local toyBox = Instance.new("TextBox")
+toyBox.Size = UDim2.new(0.85, 0, 0, 28)
+toyBox.Position = UDim2.new(0.075, 0, 0, 0)
+toyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+toyBox.TextColor3 = Color3.new(1,1,1)
+toyBox.TextSize = 14
+toyBox.Font = Enum.Font.FredokaOne
+toyBox.PlaceholderText = "Enter Toy Name"
+toyBox.Parent = toyContent
+Instance.new("UICorner", toyBox)
+
+local spawnToyBtn = createMainButton("Spawn Toy",0.35,toyContent)
 
 -- High tier list
 local highTierPets = {
     "Shadow Dragon","Bat Dragon","Frost Dragon","Giraffe","Owl","Parrot","Crow",
     "Evil Unicorn","Arctic Reindeer","Hedgehog","Dalmatian","Turtle","Kangaroo","Lion",
-    "Elephant","Rhino","Cow","Blazing Lion","African Wild Dog"
+    "Elephant","Rhino","Cow","Blazing Lion","African Wild Dog","Diamond Butterfly","Shark Puppy","Happy Clam","Jellyfish","Goat","Balloon Unicorn","Haetae","Pelican","Flamingo","Albino Monkey","Goose","Crocodile","Candyfloss Chick","Caterpillar","Peppermint Penguin","Lion Cub","Puffer Fish","Flaming Fox","Husky","Slime","Mule","Sheeeeep","Pudding Pup","Nessie","Hare","Tortuga de la Isla","Hot Doggo","Honey Badger","Puffin","Mini Pig","Ring-tailed Lemur","Border collie","Irish Water Spaniel","Fairy Bat Dragon","Cupid Bat Dragon","Strawberry Shortcake Bat Dragon","Chocolate Chip Bat Dragon"
 }
 
 -- Load Adopt Me modules
@@ -174,33 +206,6 @@ local Loads = require(game.ReplicatedStorage.Fsys).load
 local ClientData = Loads("ClientData")
 local InventoryDB = Loads("InventoryDB")
 local Inventory = ClientData.get("inventory")
-
--- Neon effect function
-local function applyNeonEffect(petModel, isMega)
-    if not petModel then return end
-    local parts = {}
-    for _, obj in ipairs(petModel:GetDescendants()) do
-        if obj:IsA("MeshPart") or obj:IsA("Part") then
-            if obj.Material == Enum.Material.Neon or obj.Name:lower():find("neon") then
-                table.insert(parts, obj)
-            end
-        end
-    end
-    if #parts == 0 then return end
-    if isMega then
-        coroutine.wrap(function()
-            while petModel.Parent do
-                local color = Color3.fromHSV((tick()*0.2)%1, 1, 1)
-                for _, p in ipairs(parts) do p.Color = color end
-                task.wait(0.1)
-            end
-        end)()
-    else
-        for _, p in ipairs(parts) do
-            p.Color = Color3.fromRGB(0,255,255)
-        end
-    end
-end
 
 -- Spawn fake pet
 local function spawnFakePet(petName, potionType)
@@ -215,7 +220,6 @@ local function spawnFakePet(petName, potionType)
             age = math.random(1,6)
         }
     end
-
     for _, petData in pairs(InventoryDB.pets or {}) do
         if petData.name == petName then
             local fake_uuid = HttpService:GenerateGUID(false)
@@ -225,23 +229,27 @@ local function spawnFakePet(petName, potionType)
             new_pet.properties = genProps()
             new_pet.anti_stack_id = tostring(math.random(100000,999999)).."-"..tick()
             Inventory.pets[fake_uuid] = new_pet
-            print("✅ Fake pet spawned:", petName, "("..potionType..")")
-            task.delay(1, function()
-                local petsFolder = workspace:FindFirstChild(LocalPlayer.Name.."_Pets")
-                if petsFolder then
-                    for _, child in ipairs(petsFolder:GetChildren()) do
-                        if child.Name == petName then
-                            applyNeonEffect(child, new_pet.properties.mega_neon)
-                        end
-                    end
-                end
-            end)
             break
         end
     end
 end
 
--- Connect buttons
+-- Spawn fake toy
+local function spawnFakeToy(toyName)
+    for _, toyData in pairs(InventoryDB.toys or {}) do
+        if toyData.name == toyName then
+            local fake_uuid = HttpService:GenerateGUID(false)
+            local new_toy = table.clone(toyData)
+            new_toy.unique = fake_uuid
+            new_toy.category = "toys"
+            new_toy.anti_stack_id = tostring(math.random(100000,999999)).."-"..tick()
+            Inventory.toys[fake_uuid] = new_toy
+            break
+        end
+    end
+end
+
+-- Button connections
 spawnBtn.MouseButton1Click:Connect(function()
     if petNameBox.Text ~= "" then
         spawnFakePet(petNameBox.Text, selectedPotion)
@@ -251,16 +259,18 @@ end)
 highTierBtn.MouseButton1Click:Connect(function()
     for _, petName in ipairs(highTierPets) do
         spawnFakePet(petName, selectedPotion)
-        task.wait(0.1) -- small delay to avoid conflicts
+        task.wait(0.1)
     end
 end)
 
--- Make GUI draggable by titleLabel
-local dragging
-local dragInput
-local dragStart
-local startPos
+spawnToyBtn.MouseButton1Click:Connect(function()
+    if toyBox.Text ~= "" then
+        spawnFakeToy(toyBox.Text)
+    end
+end)
 
+-- Draggable GUI
+local dragging, dragInput, dragStart, startPos
 local function update(input)
     local delta = input.Position - dragStart
     mainFrame.Position = UDim2.new(
@@ -271,12 +281,11 @@ local function update(input)
     )
 end
 
-titleLabel.InputBegan:Connect(function(input)
+mainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = mainFrame.Position
-
         input.Changed:Connect(function()
             if input.UserInputState == Enum.UserInputState.End then
                 dragging = false
@@ -285,7 +294,7 @@ titleLabel.InputBegan:Connect(function(input)
     end
 end)
 
-titleLabel.InputChanged:Connect(function(input)
+mainFrame.InputChanged:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
@@ -296,4 +305,3 @@ UserInputService.InputChanged:Connect(function(input)
         update(input)
     end
 end)
-
