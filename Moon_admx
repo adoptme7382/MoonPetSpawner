@@ -1,0 +1,299 @@
+-- 🐾 Adopt Me Fake Pet Spawner GUI (client-side)
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+
+-- Main GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FakePetSpawner"
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 320, 0, 330)
+mainFrame.Position = UDim2.new(0.5, -160, 0.4, -165)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 10)
+uiCorner.Parent = mainFrame
+
+local uiStroke = Instance.new("UIStroke")
+uiStroke.Color = Color3.fromRGB(170, 0, 255)
+uiStroke.Thickness = 3
+uiStroke.Parent = mainFrame
+
+-- Title (used as drag handle)
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Position = UDim2.new(0,0,0,0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text ="💸Moon&Mac Pet Spawner"
+titleLabel.Font = Enum.Font.FredokaOne
+titleLabel.TextSize = 20
+titleLabel.TextColor3 = Color3.fromRGB(240, 240, 255)
+titleLabel.Parent = mainFrame
+titleLabel.TextStrokeTransparency = 0.8
+
+-- Signature
+local signatureLabel = Instance.new("TextLabel")
+signatureLabel.Size = UDim2.new(1, 0, 0, 20)
+signatureLabel.Position = UDim2.new(0, 0, 0, 30)
+signatureLabel.BackgroundTransparency = 1
+signatureLabel.Text = "@Moon_admx"
+signatureLabel.Font = Enum.Font.FredokaOne
+signatureLabel.TextSize = 14
+signatureLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
+signatureLabel.Parent = mainFrame
+
+-- Tabs container
+local tabFrame = Instance.new("Frame")
+tabFrame.Size = UDim2.new(1, 0, 0, 30)
+tabFrame.Position = UDim2.new(0, 0, 0, 50)
+tabFrame.BackgroundTransparency = 1
+tabFrame.Parent = mainFrame
+
+local petTab = Instance.new("TextButton")
+petTab.Size = UDim2.new(0.5, 0, 1, 0)
+petTab.Text = "Pets"
+petTab.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+petTab.Font = Enum.Font.FredokaOne
+petTab.TextColor3 = Color3.new(1,1,1)
+petTab.TextSize = 16
+petTab.Parent = tabFrame
+
+local toyTab = Instance.new("TextButton")
+toyTab.Size = UDim2.new(0.5, 0, 1, 0)
+toyTab.Position = UDim2.new(0.5,0,0,0)
+toyTab.Text = "Toys"
+toyTab.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+toyTab.Font = Enum.Font.FredokaOne
+toyTab.TextColor3 = Color3.new(1,1,1)
+toyTab.TextSize = 16
+toyTab.Parent = tabFrame
+
+-- Tab contents
+local petContent = Instance.new("Frame")
+petContent.Size = UDim2.new(1, 0, 1, -90)
+petContent.Position = UDim2.new(0, 0, 0, 80)
+petContent.BackgroundTransparency = 1
+petContent.Visible = true
+petContent.Parent = mainFrame
+
+local toyContent = Instance.new("Frame")
+toyContent.Size = UDim2.new(1, 0, 1, -90)
+toyContent.Position = UDim2.new(0, 0, 0, 80)
+toyContent.BackgroundTransparency = 1
+toyContent.Visible = false
+toyContent.Parent = mainFrame
+
+petTab.MouseButton1Click:Connect(function()
+    petContent.Visible = true
+    toyContent.Visible = false
+    petTab.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+    toyTab.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+end)
+
+toyTab.MouseButton1Click:Connect(function()
+    petContent.Visible = false
+    toyContent.Visible = true
+    petTab.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    toyTab.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+end)
+
+-- Pet name textbox
+local petNameBox = Instance.new("TextBox")
+petNameBox.Size = UDim2.new(0.85, 0, 0, 28)
+petNameBox.Position = UDim2.new(0.075, 0, 0, 0)
+petNameBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+petNameBox.TextColor3 = Color3.new(1,1,1)
+petNameBox.TextSize = 14
+petNameBox.Font = Enum.Font.FredokaOne
+petNameBox.PlaceholderText = "Enter Pet Name"
+petNameBox.Parent = petContent
+
+-- Potion buttons
+local selectedPotion = "NO POTION"
+local potionOptions = {"NO POTION","F","R","FR","NFR","MFR"}
+for i, potion in ipairs(potionOptions) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.15, 0, 0, 22)
+    btn.Position = UDim2.new(0.05 + (i-1)*0.16, 0, 0.15, 0)
+    btn.Text = potion
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    btn.Font = Enum.Font.FredokaOne
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.TextSize = 12
+    btn.Parent = petContent
+
+    btn.MouseButton1Click:Connect(function()
+        selectedPotion = potion
+        for _, other in ipairs(petContent:GetChildren()) do
+            if other:IsA("TextButton") and table.find(potionOptions, other.Text) then
+                other.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+            end
+        end
+        btn.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+    end)
+end
+
+-- Spawn buttons
+local spawnBtn = Instance.new("TextButton")
+spawnBtn.Size = UDim2.new(0.6, 0, 0, 25)
+spawnBtn.Position = UDim2.new(0.2, 0, 0.35, 0)
+spawnBtn.Text = "Spawn Pet"
+spawnBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+spawnBtn.Font = Enum.Font.FredokaOne
+spawnBtn.TextColor3 = Color3.new(1,1,1)
+spawnBtn.TextSize = 16
+spawnBtn.Parent = petContent
+
+local highTierBtn = Instance.new("TextButton")
+highTierBtn.Size = UDim2.new(0.6, 0, 0, 25)
+highTierBtn.Position = UDim2.new(0.2, 0, 0.45, 0)
+highTierBtn.Text = "Spawn All High Tier"
+highTierBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 150)
+highTierBtn.Font = Enum.Font.FredokaOne
+highTierBtn.TextColor3 = Color3.new(1,1,1)
+highTierBtn.TextSize = 16
+highTierBtn.Parent = petContent
+
+-- High tier list
+local highTierPets = {
+    "Shadow Dragon","Bat Dragon","Frost Dragon","Giraffe","Owl","Parrot","Crow",
+    "Evil Unicorn","Arctic Reindeer","Hedgehog","Dalmatian","Turtle","Kangaroo","Lion",
+    "Elephant","Rhino","Cow","Blazing Lion","African Wild Dog"
+}
+
+-- Load Adopt Me modules
+local Loads = require(game.ReplicatedStorage.Fsys).load
+local ClientData = Loads("ClientData")
+local InventoryDB = Loads("InventoryDB")
+local Inventory = ClientData.get("inventory")
+
+-- Neon effect function
+local function applyNeonEffect(petModel, isMega)
+    if not petModel then return end
+    local parts = {}
+    for _, obj in ipairs(petModel:GetDescendants()) do
+        if obj:IsA("MeshPart") or obj:IsA("Part") then
+            if obj.Material == Enum.Material.Neon or obj.Name:lower():find("neon") then
+                table.insert(parts, obj)
+            end
+        end
+    end
+    if #parts == 0 then return end
+    if isMega then
+        coroutine.wrap(function()
+            while petModel.Parent do
+                local color = Color3.fromHSV((tick()*0.2)%1, 1, 1)
+                for _, p in ipairs(parts) do p.Color = color end
+                task.wait(0.1)
+            end
+        end)()
+    else
+        for _, p in ipairs(parts) do
+            p.Color = Color3.fromRGB(0,255,255)
+        end
+    end
+end
+
+-- Spawn fake pet
+local function spawnFakePet(petName, potionType)
+    potionType = potionType or "NO POTION"
+    local function genProps()
+        return {
+            flyable = potionType == "F" or potionType == "FR" or potionType == "NFR" or potionType == "MFR",
+            rideable = potionType == "R" or potionType == "FR" or potionType == "NFR" or potionType == "MFR",
+            neon = potionType == "NFR" or potionType == "MFR",
+            mega_neon = potionType == "MFR",
+            potionType = potionType,
+            age = math.random(1,6)
+        }
+    end
+
+    for _, petData in pairs(InventoryDB.pets or {}) do
+        if petData.name == petName then
+            local fake_uuid = HttpService:GenerateGUID(false)
+            local new_pet = table.clone(petData)
+            new_pet.unique = fake_uuid
+            new_pet.category = "pets"
+            new_pet.properties = genProps()
+            new_pet.anti_stack_id = tostring(math.random(100000,999999)).."-"..tick()
+            Inventory.pets[fake_uuid] = new_pet
+            print("✅ Fake pet spawned:", petName, "("..potionType..")")
+            task.delay(1, function()
+                local petsFolder = workspace:FindFirstChild(LocalPlayer.Name.."_Pets")
+                if petsFolder then
+                    for _, child in ipairs(petsFolder:GetChildren()) do
+                        if child.Name == petName then
+                            applyNeonEffect(child, new_pet.properties.mega_neon)
+                        end
+                    end
+                end
+            end)
+            break
+        end
+    end
+end
+
+-- Connect buttons
+spawnBtn.MouseButton1Click:Connect(function()
+    if petNameBox.Text ~= "" then
+        spawnFakePet(petNameBox.Text, selectedPotion)
+    end
+end)
+
+highTierBtn.MouseButton1Click:Connect(function()
+    for _, petName in ipairs(highTierPets) do
+        spawnFakePet(petName, selectedPotion)
+        task.wait(0.1) -- small delay to avoid conflicts
+    end
+end)
+
+-- Make GUI draggable by titleLabel
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+titleLabel.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+titleLabel.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
